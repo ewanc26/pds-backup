@@ -3,12 +3,16 @@
 ## Overview
 This Bash script is designed to automate the backup process of the [PDS (Personal Data Server)](https://github.com/bluesky-social/pds) service files to a remote machine using `rsync`. The script stops the PDS service, creates a backup with a timestamp, and restarts the service upon completion.
 
+***This script is not affiliated with Bluesky PBLLC.***
+
 This backup process is manual and is intended to be run only when desired. The script logs all actions and errors to a specified log file.
 
 ## Requirements
+- **A working PDS**: Make sure to actually have a PDS, obviously. Go to the [PDS (Personal Data Server)](https://github.com/bluesky-social/pds) repository to see the install instructions.
 - **SSH Access**: The script uses `rsync` over SSH to transfer files. Ensure passwordless SSH is configured between the source and destination machines.
 - **Service Control**: The script relies on `systemctl` to start and stop the PDS service. Ensure the PDS service is managed by `systemctl` on the source machine.
 - **Disk Space**: Ensure sufficient space is available on the destination machine to store backups.
+- **Sudo**: Ability to run in root. ***The script requires the use of `sudo`.*** 
 
 ## Variables and Configuration
 Edit the following variables in the script to suit your environment:
@@ -38,7 +42,7 @@ LOG_FILE="/var/log/pds-backup.log"
 1. **Run the Script Manually**:
    Execute the script manually *from* the PDS by running:
    ```bash
-   ./pds-backup.sh
+   sudo ./pds-backup.sh
    ```
 
 2. **Check the Log File**:
