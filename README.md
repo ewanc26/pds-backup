@@ -1,7 +1,7 @@
 # PDS Backup Script
 
 ## Overview
-This Bash script is designed to automate the backup process of the [PDS (Personal Data Server)](https://github.com/bluesky-social/pds) service files to a remote machine using `rsync`. The script stops the PDS service, creates a backup with a timestamp, and restarts the service upon completion.
+This Bash script is designed to automate the backup process of [PDS (Personal Data Server)](https://github.com/bluesky-social/pds) files to a remote machine using `rsync`. The script stops the PDS service, creates a backup with a timestamp, and restarts the service upon completion.
 
 ***This script is not affiliated with Bluesky PBLLC.***
 
