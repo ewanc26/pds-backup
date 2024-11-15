@@ -15,7 +15,7 @@ RETRY_INTERVAL=60  # Retry interval in seconds (1 minute)
 fail() {
     echo "$(date): ERROR: $1" | tee -a "$LOG_FILE"
     # Always restart the PDS service if it fails
-    systemctl start pds 2>/dev/null
+    systemctl restart pds 2>/dev/null || echo "$(date): WARNING: Failed to restart PDS service after failure." >> "$LOG_FILE"
     exit 1
 }
 
@@ -27,16 +27,18 @@ fi
 echo "$(date): Machine at $DEST_IP is online." >> "$LOG_FILE"
 
 # Step 1: Stop the PDS service (if applicable)
+echo "$(date): Stopping the PDS service..." >> "$LOG_FILE"
 if ! systemctl stop pds 2>/dev/null; then
-    fail "Failed to stop the PDS service. Check permissions or service status."
+    echo "$(date): WARNING: Failed to stop the PDS service. Proceeding with backup." >> "$LOG_FILE"
+else
+    echo "$(date): Successfully stopped the PDS service." >> "$LOG_FILE"
 fi
-echo "$(date): Successfully stopped the PDS service." >> "$LOG_FILE"
 
 # Step 2: Perform the backup using rsync with retry mechanism
 attempt=1
 while [ $attempt -le $MAX_RETRIES ]; do
     echo "$(date): Attempt $attempt to perform backup using rsync..." >> "$LOG_FILE"
-    
+
     if rsync -avz --delete "$SOURCE_DIR/" "$DEST_USER@$DEST_IP:$DEST_DIR/" 2>> "$LOG_FILE"; then
         echo "$(date): Backup completed successfully to $DEST_DIR" >> "$LOG_FILE"
         break
@@ -47,13 +49,6 @@ while [ $attempt -le $MAX_RETRIES ]; do
             sleep $RETRY_INTERVAL
         else
             echo "$(date): ERROR: Backup failed after $MAX_RETRIES attempts." >> "$LOG_FILE"
-            
-            # Always restart the PDS service, regardless of the failure
-            if systemctl start pds 2>/dev/null; then
-                echo "$(date): PDS service restarted after failed backup." >> "$LOG_FILE"
-            else
-                echo "$(date): WARNING: Failed to restart PDS service after rsync failure." >> "$LOG_FILE"
-            fi
             fail "Backup failed after $MAX_RETRIES attempts. Check logs and network connection."
         fi
     fi
@@ -61,6 +56,7 @@ while [ $attempt -le $MAX_RETRIES ]; do
 done
 
 # Step 3: Always restart the PDS service (if applicable)
+echo "$(date): Restarting the PDS service..." >> "$LOG_FILE"
 if ! systemctl start pds 2>/dev/null; then
     fail "Failed to start the PDS service. Check service status and logs."
 fi
@@ -68,7 +64,7 @@ echo "$(date): Successfully restarted the PDS service." >> "$LOG_FILE"
 
 # Step 4: Log Rotation - Delete old log files (> 30 days)
 echo "$(date): Checking and deleting log files older than 30 days..." >> "$LOG_FILE"
-find /var/log/ -name "pds-backup*.log" -type f -mtime +30 -exec rm -f {} \;
+find /var/log/ -name "pds-backup*.log" -type f -mtime +30 -exec rm -f {} \; 2>/dev/null
 echo "$(date): Deleted old log files older than 30 days." >> "$LOG_FILE"
 
 # Step 5: Log Rotation - archive old log files to avoid large log size
