@@ -62,12 +62,21 @@ if ! systemctl start pds 2>/dev/null; then
 fi
 echo "$(date): Successfully restarted the PDS service." >> "$LOG_FILE"
 
-# Step 4: Log Rotation - Delete old log files (> 30 days)
+# Step 4: Delete backup directories older than 30 days
+echo "$(date): Checking and deleting backup directories older than 30 days..." >> "$LOG_FILE"
+ssh "$DEST_USER@$DEST_IP" "find $DEST_BASE_DIR -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \;" 2>> "$LOG_FILE"
+if [ $? -eq 0 ]; then
+    echo "$(date): Deleted backup directories older than 30 days successfully." >> "$LOG_FILE"
+else
+    echo "$(date): ERROR: Failed to delete old backup directories. Check logs for details." >> "$LOG_FILE"
+fi
+
+# Step 5: Log Rotation - Delete old log files (> 30 days)
 echo "$(date): Checking and deleting log files older than 30 days..." >> "$LOG_FILE"
 find /var/log/ -name "pds-backup*.log" -type f -mtime +30 -exec rm -f {} \; 2>/dev/null
 echo "$(date): Deleted old log files older than 30 days." >> "$LOG_FILE"
 
-# Step 5: Log Rotation - archive old log files to avoid large log size
+# Step 6: Log Rotation - archive old log files to avoid large log size
 if [ $(wc -l < "$LOG_FILE") -gt 1000 ]; then
     mv "$LOG_FILE" "$LOG_FILE.old"
     touch "$LOG_FILE"

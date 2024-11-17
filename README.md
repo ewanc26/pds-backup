@@ -1,7 +1,7 @@
 # PDS Backup Script
 
 ## Overview
-This Bash script is designed to automate the backup process of [PDS (Personal Data Server)](https://github.com/bluesky-social/pds) files to a remote machine using `rsync`. The script stops the PDS service, creates a backup with a timestamp, and restarts the service upon completion.
+This Bash script is designed to automate the backup process of [PDS (Personal Data Server)](https://github.com/bluesky-social/pds) files to a remote machine using `rsync`. The script stops the PDS service, creates a backup with a timestamp, cleans up old backups (older than one month), and restarts the service upon completion.
 
 ***This script is not affiliated with Bluesky PBLLC.***
 
@@ -34,9 +34,10 @@ LOG_FILE="/var/log/pds-backup.log"
 
 ## How It Works
 1. **Stop PDS Service**: The script attempts to stop the PDS service on the source machine.
-2. **Create a Backup**: Using `rsync`, the script transfers files from the source directory to the destination directory, organized by a timestamp.
-3. **Restart PDS Service**: After the backup, the script restarts the PDS service.
-4. **Error Handling**: In case of failure during `rsync`, the script logs an error, restarts the PDS service, and exits.
+2. **Create a Backup**: Using `rsync`, the script transfers files from the source directory to the destination directory, organised by a timestamp.
+3. **Clean Up Old Backups**: The script deletes backup directories older than 30 days on the destination machine.
+4. **Restart PDS Service**: After the backup, the script restarts the PDS service.
+5. **Error Handling**: In case of failure during `rsync`, the script logs an error, restarts the PDS service, and exits.
 
 ## Usage
 1. **Run the Script Manually**:
@@ -59,6 +60,10 @@ LOG_FILE="/var/log/pds-backup.log"
 - Successful completion of backup:
   ```
   YYYY-MM-DD HH:MM: Backup completed successfully to /destination/path/YYYYMMDD-HHMM
+  ```
+- Cleanup of old backups:
+  ```
+  YYYY-MM-DD HH:MM: Deleted backup directories older than 30 days successfully.
   ```
 - Failure messages:
   ```
