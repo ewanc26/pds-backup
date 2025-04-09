@@ -1,5 +1,7 @@
 # PDS Backup Script
 
+***This repository is available on [GitHub](https://github.com/ewanc26/pds-backup) and [Tangled](https://tangled.sh/@ewancroft.uk/pds-backup). GitHub is the primary version, and the Tangled version is a mirror.***
+
 ## Overview
 
 This Bash script automates the backup process for your Personal Data Server (PDS) files. It ensures minimal downtime by managing the PDS service—stopping it before a backup and restarting it afterwards—even in the event of errors. The script creates a timestamped compressed archive of the `/pds` directory, then transfers this archive to a remote destination via `rsync` over SSH. A change detection mechanism compares the new archive against the most recent backup using a SHA-256 checksum; if no changes are detected, the transfer is skipped, thereby preventing redundant backups.
