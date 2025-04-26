@@ -1,6 +1,6 @@
 # PDS Backup Script
 
-***This repository is available on [GitHub](https://github.com/ewanc26/pds-backup) and [Tangled](https://tangled.sh/@ewancroft.uk/pds-backup). GitHub is the primary version, and the Tangled version is a mirror.***
+***This repository is available on [GitHub](https://github.com/ewanc26/pds-backup) and [Tangled](https://tangled.sh/did:plc:ofrbh253gwicbkc5nktqepol/pds-backup). GitHub is the primary version, and the Tangled version is a mirror.***
 
 ## Overview
 
