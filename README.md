@@ -167,3 +167,7 @@ ssh "$DEST_USER@$DEST_IP" "find $DEST_BASE_DIR -mindepth 1 -maxdepth 1 -type d -
 - Verify that you have sufficient disk space on the destination machine for backups.
 - It is advisable to test the script manually prior to relying solely on the automated cron jobs.
 - In the event of an error, the script logs the issue and makes every effort to restart the PDS service, thereby maintaining service continuity.
+
+## ☕ Support
+
+If you found this useful, consider [buying me a ko-fi](https://ko-fi.com/ewancroft)!
