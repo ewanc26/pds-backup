@@ -2,6 +2,7 @@
 # PDS Backup — modular backup script for AT Protocol PDS
 # Orchestrates backup using sourced library modules from lib/
 
+# Fail fast on any error, unset variable, or pipe failure
 set -euo pipefail
 
 # ── Configuration ──────────────────────────────────────────────
@@ -36,8 +37,10 @@ CRON_JOBS=(
 )
 
 # ── Helpers ────────────────────────────────────────────────────
+# Log the error, attempt to restore service before bailing, then exit
 fail() {
     echo "$(date): ERROR: $1" | tee -a "$LOG_FILE"
+    # Always try to restart PDS even on failure -- downtime is worse than a failed backup
     start_pds >> "$LOG_FILE" 2>&1 || true
     exit 1
 }

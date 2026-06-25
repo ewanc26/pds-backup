@@ -2,6 +2,9 @@
 # Rsync file transfer with retry logic for PDS backup
 # Source this file to use: source "$(dirname "$0")/transfer.sh"
 
+# ── Remote transfer ─────────────────────────────────────────────
+
+# Create the timestamped destination directory on the remote machine
 ensure_remote_dir() {
     local dest_user="$1"
     local dest_ip="$2"
@@ -12,6 +15,8 @@ ensure_remote_dir() {
     return $?
 }
 
+# Transfer the archive to the remote machine with exponential-style retry.
+# Network hiccups happen; we give it a few goes before giving up.
 transfer_with_retry() {
     local archive_file="$1"
     local dest_user="$2"

@@ -2,6 +2,10 @@
 # Cleanup and log rotation utilities for PDS backup
 # Source this file to use: source "$(dirname "$0")/cleanup.sh"
 
+# ── Remote cleanup ──────────────────────────────────────────────
+
+# Remove backup directories on the remote machine older than the retention window.
+# The date-labeled dir structure makes this a simple mtime-based sweep.
 delete_old_backups() {
     local dest_user="$1"
     local dest_ip="$2"
@@ -15,11 +19,15 @@ delete_old_backups() {
     return $?
 }
 
+# ── Local log rotation ────────────────────────────────────────────
+
+# Two-tier rotation: age-based (30 days) and size-based (1000 lines).
+# A hard purge at 90 days prevents unbounded log growth on the backup host.
 rotate_old_logs() {
     local log_dir="$1"
     local log_file="$2"
 
-    # Delete logs older than 90 days
+    # Absolute deletion for logs past the point of usefulness
     find "$log_dir" -type f -name "*.log" -mtime +90 -exec rm -f {} \; 2>/dev/null
     echo "$(date): Deleted log files older than 90 days." >> "$log_file"
 
@@ -30,7 +38,7 @@ rotate_old_logs() {
         echo "$(date): Log file older than 30 days, rotated. Previous log archived as $log_file.old" >> "$log_file"
     fi
 
-    # Rotate if exceeds 1000 lines
+    # Rotate if log file becomes chatty beyond 1000 lines
     if [ -f "$log_file" ] && [ "$(wc -l < "$log_file")" -gt 1000 ]; then
         mv "$log_file" "$log_file.old"
         touch "$log_file"
