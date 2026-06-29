@@ -2,31 +2,20 @@
 
 ## Overview
 
-This Bash script automates the backup process for your Personal Data Server (PDS) files. It ensures minimal downtime by managing the PDS service—stopping it before a backup and restarting it afterwards—even in the event of errors. The script creates a timestamped compressed archive of the `/pds` directory, then transfers this archive to a remote destination via `rsync` over SSH. A change detection mechanism compares the new archive against the most recent backup using a SHA-256 checksum; if no changes are detected, the transfer is skipped, thereby preventing redundant backups.
+Bash script that automates PDS backups. Stops the PDS service, creates a timestamped `.tar.gz` archive of `/pds`, transfers it via `rsync` over SSH, then restarts the service — even if something fails midway.
 
-Additionally, the script incorporates a retry mechanism for the transfer process, automatically attempting up to three retries at 60-second intervals if the initial `rsync` operation fails. Detailed logs are maintained in a `logs/pds-backup` folder relative to the script's base directory, with an automated log rotation policy based on both file age and size. The script also updates the system’s crontab to schedule automated backups twice daily—at midnight and at noon.
+Change detection compares the new archive against the last remote backup with SHA-256; if nothing changed, the transfer is skipped. Up to three retries at 60-second intervals if `rsync` fails. Logs go to `logs/pds-backup/` with automatic rotation by age and size. Updates crontab for twice-daily backups (midnight and noon).
 
 > 🧶 Also available on [Tangled](https://tangled.org/ewancroft.uk/pds-backup)
 
 ## Features
 
-- **Service Management:**  
-  The script stops the PDS service before creating a backup and ensures it is restarted afterwards. In case of an error during any step, the script attempts to restart the PDS service automatically to minimise downtime.
-
-- **Backup Archive Creation:**  
-  A timestamped `.tar.gz` archive is generated from the `/pds` directory, providing a consistent snapshot of your data.
-
-- **Change Detection:**  
-  The newly created archive is compared with the latest remote backup archive using SHA-256 checksums. If the checksums match (indicating no changes), the backup transfer is skipped. This mechanism is bypassed on the first run if no previous backup is found.
-
-- **Reliable Remote Transfer:**  
-  The archive is transferred to the remote machine via `rsync` over SSH. A maximum of three transfer attempts are made, with a 60-second interval between retries.
-
-- **Directory and Log Management:**  
-  The script verifies the existence of the remote destination directory (creating it if necessary) and cleans up remote backup directories older than 30 days. Locally, log files are rotated when they exceed 1000 lines or are older than 30 days, with files older than 90 days being automatically deleted.
-
-- **Cron Job Setup:**  
-  Upon each run, the script updates the crontab to ensure that backup jobs are scheduled at midnight and noon daily, maintaining only the specified cron entries.
+- **Service management** — Stops the PDS before backup, restarts it after. If something fails, it still tries to restart the service.
+- **Archive** — Timestamped `.tar.gz` of `/pds`.
+- **Change detection** — Compares SHA-256 checksums with the latest remote backup. Skips transfer if nothing changed. Bypassed on first run.
+- **Transfer** — `rsync` over SSH. Up to 3 retries, 60 seconds apart.
+- **Cleanup** — Creates remote dirs if needed. Remotes older than 30 days get deleted. Logs rotate at 1000 lines or 30 days; anything over 90 days is purged.
+- **Cron** — Sets up backups at midnight and noon on each run.
 
 ## Requirements
 
@@ -166,7 +155,7 @@ ssh "$DEST_USER@$DEST_IP" "find $DEST_BASE_DIR -mindepth 1 -maxdepth 1 -type d -
 - Ensure that passwordless SSH is properly configured between your source and destination machines.
 - Verify that you have sufficient disk space on the destination machine for backups.
 - It is advisable to test the script manually prior to relying solely on the automated cron jobs.
-- In the event of an error, the script logs the issue and makes every effort to restart the PDS service, thereby maintaining service continuity.
+- If an error occurs, the script logs it and tries to restart the PDS service so it stays running.
 
 ## ☕ Support
 
