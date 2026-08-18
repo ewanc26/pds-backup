@@ -1,6 +1,7 @@
 #!/bin/bash
 # PDS Backup — modular backup script for AT Protocol PDS
 # Orchestrates backup using sourced library modules from lib/
+# Support: Ko-fi https://ko-fi.com/ewancroft · GitHub Sponsors https://github.com/sponsors/ewanc26
 
 # Fail fast on any error, unset variable, or pipe failure
 set -euo pipefail
