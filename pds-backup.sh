@@ -65,7 +65,9 @@ main() {
 
     # Step 2: Stop PDS
     echo "$(date): Stopping the PDS service..." >> "$LOG_FILE"
-    stop_pds >> "$LOG_FILE" 2>&1 || echo "$(date): WARNING: Failed to stop PDS. Proceeding anyway." >> "$LOG_FILE"
+    if ! stop_pds >> "$LOG_FILE" 2>&1; then
+        fail "Failed to stop PDS; refusing to back up a potentially inconsistent data directory."
+    fi
 
     # Step 3: Create archive
     echo "$(date): Creating compressed backup archive of $SOURCE_DIR..." >> "$LOG_FILE"
@@ -78,7 +80,10 @@ main() {
     echo "$(date): Checking for differences with the latest backup..." >> "$LOG_FILE"
     if check_for_changes "$ARCHIVE_FILE" "$DEST_USER" "$DEST_IP" "$DEST_BASE_DIR" "$LOG_FILE"; then
         echo "No changes detected since the last backup. Backup not performed." | tee -a "$LOG_FILE"
-        start_pds >> "$LOG_FILE" 2>&1 && echo "$(date): Successfully restarted the PDS service." >> "$LOG_FILE"
+        if ! start_pds >> "$LOG_FILE" 2>&1; then
+            fail "Failed to restart PDS after an unchanged backup."
+        fi
+        echo "$(date): Successfully restarted the PDS service." >> "$LOG_FILE"
         exit 0
     fi
 
