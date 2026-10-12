@@ -15,7 +15,7 @@ MAX_RETRIES=3
 RETRY_INTERVAL=60
 RETENTION_DAYS=30
 
-SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 LIB_DIR="$SCRIPT_DIR/lib"
 
 # Source library modules
@@ -122,10 +122,13 @@ main() {
     rotate_old_logs "$LOG_DIR" "$LOG_FILE"
 
     # Step 10: Ensure cron jobs
-    ensure_cron_jobs "$(realpath "$0")" "$LOG_FILE" "${CRON_JOBS[@]}"
+    ensure_cron_jobs "$(realpath "${BASH_SOURCE[0]}")" "$LOG_FILE" "${CRON_JOBS[@]}"
 
     echo "$(date): Backup and service restart completed successfully." >> "$LOG_FILE"
     exit 0
 }
 
-main
+# Run only when executed directly, so tests can source this file for its functions
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main
+fi

@@ -157,6 +157,16 @@ ssh "$DEST_USER@$DEST_IP" "find $DEST_BASE_DIR -mindepth 1 -maxdepth 1 -type d -
 - It is advisable to test the script manually prior to relying solely on the automated cron jobs.
 - If an error occurs, the script logs it and tries to restart the PDS service so it stays running.
 
+## Testing
+
+Regression tests live in `tests/` and stub all external dependencies (`systemctl`, `ssh`, `rsync`, `ping`) so they run on any machine:
+
+```bash
+bash tests/pds-backup.test.sh
+```
+
+Covered cases include the no-change branch, which must restart the PDS and exit non-zero if that restart fails (see issue #3).
+
 ## Support
 
 If you find this project useful, consider supporting its development:
