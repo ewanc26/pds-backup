@@ -80,6 +80,7 @@ main() {
     echo "$(date): Checking for differences with the latest backup..." >> "$LOG_FILE"
     if check_for_changes "$ARCHIVE_FILE" "$DEST_USER" "$DEST_IP" "$DEST_BASE_DIR" "$LOG_FILE"; then
         echo "No changes detected since the last backup. Backup not performed." | tee -a "$LOG_FILE"
+        rm -f "$ARCHIVE_FILE"
         if ! start_pds >> "$LOG_FILE" 2>&1; then
             fail "Failed to restart PDS after an unchanged backup."
         fi
