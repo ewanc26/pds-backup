@@ -39,21 +39,22 @@ run_no_change_case() {
 
         LOG_DIR="$tmp/logs"
         LOG_FILE="$LOG_DIR/test.log"
+        SOURCE_DIR="$tmp/data"
         ARCHIVE_FILE="$tmp/archive.tar.gz"
         DEST_USER="backup"
         DEST_IP="10.255.255.1"
         DEST_BASE_DIR="/remote/backups"
 
-        # Stub every side-effecting dependency so only the restart logic runs.
+        # Stub every side-effecting dependency; create_archive stays real so the
+        # archive file actually exists when the no-change branch runs.
         check_connectivity() { return 0; }
         pds_service_exists() { return 0; }
         stop_pds() { return 0; }
-        create_archive() { touch "$2"; return 0; }
         check_for_changes() { return 0; }
         start_pds() { return "$start_rc"; }
 
-        mkdir -p "$LOG_DIR"
-        touch "$ARCHIVE_FILE"
+        mkdir -p "$LOG_DIR" "$SOURCE_DIR"
+        echo "data" > "$SOURCE_DIR/file.txt"
 
         # main() calls exit, so run it in a nested subshell to capture the code.
         # The sourced script re-enables set -e, so disable it again before
@@ -61,6 +62,7 @@ run_no_change_case() {
         set +e
         ( set +e; main >"$tmp/stdout.log" 2>&1 )
         echo "__RC__$?"
+        if [ -e "$ARCHIVE_FILE" ]; then echo "__ARCHIVE__present"; else echo "__ARCHIVE__absent"; fi
         echo "__LOG__"
         cat "$LOG_FILE" 2>/dev/null
     )
@@ -83,6 +85,11 @@ if printf '%s\n' "$OUT" | grep -q "Successfully restarted the PDS service"; then
     pass "logs a successful restart"
 else
     fail "expected a successful-restart log line"
+fi
+if printf '%s\n' "$OUT" | grep -q "^__ARCHIVE__absent$"; then
+    pass "removes the local archive when nothing changed"
+else
+    fail "expected the local archive to be removed after an unchanged run"
 fi
 
 echo
