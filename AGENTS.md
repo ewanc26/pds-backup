@@ -4,7 +4,7 @@ Guidance for AI coding agents working in **pds-backup**.
 
 ## Project overview
 
-my ATProto PDS backup script.
+My ATProto PDS backup script.
 
 - Language: Shell
 - Default branch: main
