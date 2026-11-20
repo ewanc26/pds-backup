@@ -10,7 +10,7 @@ This is operational tooling that runs as root against live servers, so robustnes
 git clone https://github.com/ewanc26/pds-backup.git
 ```
 
-Read the [README](README.md) for requirements (a working PDS install,passwordless SSH to the destination, systemd, root) and test any change **against a throwaway PDS** before touching a real one.
+Read the [README](README.md) for requirements (a working PDS install, passwordless SSH to the destination, systemd, root) and test any change **against a throwaway PDS** before touching a real one.
 
 ## Notes for this project
 
